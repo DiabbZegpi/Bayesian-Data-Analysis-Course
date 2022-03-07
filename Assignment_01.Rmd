@@ -145,25 +145,70 @@ Consider a random experiment in which one of the boxes is randomly selected and 
 
 What is the probability of picking a red ball?
 
-$$
-\begin{aligned}
-P(R) & = P(R \mid A) + P(R \mid B) + P(R \mid C) \\
-P(R) & = \frac{P(R \cap A)}{P(A)} + \frac{P(R \cap B)}{P(B)} + \frac{P(R \cap C)}{P(C)} \\
-P(R) & = \frac{2 \times 4}{7 \times 10} + \frac{4 \times 1}{5 \times 10} + \frac{1 \times 5}{4 \times 10} = 0.3192857
-\end{aligned}
-$$
+```{r}
+boxes <- matrix(
+  c(2,4,1,5,1,3,.4,.1,.5), 
+  ncol = 3,
+  dimnames = list(c("A", "B", "C"), c("red", "white", "prob"))
+)
+boxes
+```
+
+```{r}
+prob_red <- function(matrix) {
+  prob_red <- 0
+  for (i in 1:nrow(matrix)) {
+    prob_red <- prob_red + (matrix[i,1] / (matrix[i,1] + matrix[i,2])) * matrix[i,3]
+  }
+  return(prob_red)
+}
+
+prob_red(boxes)
+```
 
 ## b)
 
 If a red ball was picked, from which box it most probably came from?
 
+```{r}
+prob_box_cond <- function(matrix) {
+  prob_box <- vector("numeric")
+  prob_joint <- vector("numeric")
+  for (i in 1:nrow(matrix)) {
+    prob_joint[i] <- (matrix[i,1] / (matrix[i,1] + matrix[i,2])) * matrix[i,3]
+    prob_box[i] <- prob_joint[i] / prob_red(matrix)
+  }
+  names(prob_box) <- c("A", "B", "C")
+  return(prob_box)
+}
+
+prob_box_cond(boxes)
+```
+
+The most likely box is C.
+
+# Exercise 5)
+
+**Bayes' theorem**. What is the probability that Elvis Presley was an identical twin?
+
+- Let $P(F) = 1/150$ be the probability of a fraternal twin event (could be different sex).
+- Let $P(I) = 1/400$ be the probability of an identical twin event (same sex).
+- Assume that an equal number of boys and girls are born on average, *i.e.* $P(boy) = 0.5$.
+
 $$
 \begin{aligned}
-P(A \mid R) & = \frac{P(A \cap R)}{P(R)} = 0.8948546
+P(I \mid twin) & = \frac{P(I \cap twin)}{P(twin)} = \frac{P(twin \mid I) \times P(I)}{P(twin)} \\
+P(I \mid twin) & = \frac{1 \times 1/400}{1/600 + 1/400} = 0.6
 \end{aligned}
 $$
 
+```{r}
+prob_identical <- function(p_ident = 1/400, p_frat = 1/150) {
+  p_ident / (p_frat / 4 + p_ident)
+}
 
+prob_identical()
+```
 
 
 
